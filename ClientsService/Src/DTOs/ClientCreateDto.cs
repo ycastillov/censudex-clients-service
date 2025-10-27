@@ -1,15 +1,10 @@
-using System.ComponentModel.DataAnnotations;
-
-namespace ClientsService.Src.Models
+namespace ClientsService.Src.DTOs
 {
     /// <summary>
-    /// Representa un cliente en el sistema.
+    /// DTO para la creación de un nuevo cliente.
     /// </summary>
-    public class Client
+    public class ClientCreateDto
     {
-        [Key]
-        public required Guid Id { get; set; }
-
         /// <summary>
         /// Nombre del cliente.
         /// </summary>
@@ -46,18 +41,8 @@ namespace ClientsService.Src.Models
         public required string PhoneNumber { get; set; }
 
         /// <summary>
-        /// Contraseña del cliente (hash).
+        /// Contraseña del cliente.
         /// </summary>
-        public required string PasswordHash { get; set; }
-
-        /// <summary>
-        /// Indica si la cuenta del cliente está activa.
-        /// </summary>
-        public bool IsActive { get; set; } = true;
-
-        /// <summary>
-        /// Fecha de registro del cliente.
-        /// </summary>
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public required string Password { get; set; }
     }
 }
