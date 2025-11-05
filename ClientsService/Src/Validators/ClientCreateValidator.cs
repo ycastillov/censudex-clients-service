@@ -31,6 +31,7 @@ namespace ClientsService.Src.Validators
 
             RuleFor(x => x.Password)
                 .NotEmpty()
+                .WithMessage("La contraseña no puede estar vacía")
                 .MinimumLength(8)
                 .WithMessage("Debe tener al menos 8 caracteres")
                 .Matches(@"[A-Z]")
@@ -43,6 +44,7 @@ namespace ClientsService.Src.Validators
                 .WithMessage("Debe contener un carácter especial");
         }
 
-        private bool Be18OrOlder(DateTime birthDate) => birthDate <= DateTime.UtcNow.AddYears(-18);
+        private bool Be18OrOlder(DateOnly birthDate) =>
+            birthDate <= DateOnly.FromDateTime(DateTime.UtcNow.AddYears(-18));
     }
 }

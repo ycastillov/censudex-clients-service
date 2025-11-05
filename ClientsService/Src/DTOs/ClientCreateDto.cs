@@ -28,7 +28,7 @@ namespace ClientsService.Src.DTOs
         /// <summary>
         /// Fecha de nacimiento del cliente.
         /// </summary>
-        public required DateTime BirthDate { get; set; }
+        public required DateOnly BirthDate { get; set; }
 
         /// <summary>
         /// Dirección del cliente.

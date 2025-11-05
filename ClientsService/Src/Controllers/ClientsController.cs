@@ -12,16 +12,29 @@ namespace ClientsService.Src.Controllers
     /// <summary>
     /// Controlador para la gestión de clientes.
     /// </summary>
-    public class ClientsController(IClientRepository clientRepository, IMapper mapper) : ControllerBase
+    public class ClientsController(IClientRepository clientRepository, IMapper mapper)
+        : ControllerBase
     {
         private readonly IClientRepository _clientRepository = clientRepository;
         private readonly IMapper _mapper = mapper;
 
-        public async Task<ActionResult<ApiResponse<Client>>> CreateClient([FromBody] ClientCreateDto clientCreateDto)
+        public async Task<ActionResult<ApiResponse<Client>>> CreateClient(
+            [FromBody] ClientCreateDto clientCreateDto
+        )
         {
             if (await _clientRepository.EmailExistsAsync(clientCreateDto.Email))
             {
-                return Conflict(new ApiResponse<Client>(false, "El correo electrónico ya está registrado.", null, ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList()));
+                return Conflict(
+                    new ApiResponse<Client>(
+                        false,
+                        "El correo electrónico ya está registrado.",
+                        null,
+                        ModelState
+                            .Values.SelectMany(v => v.Errors)
+                            .Select(e => e.ErrorMessage)
+                            .ToList()
+                    )
+                );
             }
 
             clientCreateDto.Password = BCrypt.Net.BCrypt.HashPassword(clientCreateDto.Password);
@@ -29,7 +42,10 @@ namespace ClientsService.Src.Controllers
             var newClient = _mapper.Map<Client>(clientCreateDto);
 
             var createdClient = await _clientRepository.CreateClientAsync(newClient);
-            return CreatedAtAction(nameof(CreateClient), new ApiResponse<Client>(true, "Cliente creado exitosamente.", createdClient));
+            return CreatedAtAction(
+                nameof(CreateClient),
+                new ApiResponse<Client>(true, "Cliente creado exitosamente.", createdClient)
+            );
         }
     }
 }
