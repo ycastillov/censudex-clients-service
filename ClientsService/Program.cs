@@ -1,10 +1,16 @@
 using ClientsService.Src.Data;
+using ClientsService.Src.Interfaces;
+using ClientsService.Src.Repositories;
 using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddScoped<IClientRepository, ClientRepository>();
+
+
 builder.Services.AddControllers();
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddFluentValidationClientsideAdapters();
 

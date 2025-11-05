@@ -9,10 +9,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ClientsService.Src.Repositories
 {
+    /// <summary>
+    /// Repositorio para la gestión de clientes.
+    /// </summary>
     public class ClientRepository(AppDbContext appDbContext) : IClientRepository
     {
         private readonly AppDbContext _appDbContext = appDbContext;
 
+        /// <summary>
+        /// Crea un nuevo cliente en la base de datos.
+        /// </summary>
+        /// <param name="client">Cliente a crear.</param>
+        /// <returns>Cliente creado.</returns>
         public async Task<Client> CreateClientAsync(Client client)
         {
             _appDbContext.Clients.Add(client);
@@ -20,6 +28,11 @@ namespace ClientsService.Src.Repositories
             return client;
         }
 
+        /// <summary>
+        /// Verifica si un correo electrónico ya está registrado.
+        /// </summary>
+        /// <param name="email">Correo electrónico a verificar</param>
+        /// <returns>True si es que existe, caso contrario retorna False.</returns>
         public async Task<bool> EmailExistsAsync(string email)
         {
             return await _appDbContext.Clients.AnyAsync(c => c.Email == email);
