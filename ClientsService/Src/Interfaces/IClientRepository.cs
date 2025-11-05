@@ -15,5 +15,8 @@ namespace ClientsService.Src.Interfaces
 
         // Obtener la lista de todos los clientes.
         Task<IEnumerable<Client>> GetAllClientsAsync();
+
+        // Obtener un cliente por su ID.
+        Task<Client?> GetClientByIdAsync(Guid id);
     }
 }

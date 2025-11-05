@@ -46,5 +46,15 @@ namespace ClientsService.Src.Repositories
         {
             return await _appDbContext.Clients.ToListAsync();
         }
+
+        /// <summary>
+        /// Obtiene un cliente por su ID.
+        /// </summary>
+        /// <param name="id">ID del cliente.</param>
+        /// <returns>Cliente encontrado o null si no existe.</returns>
+        public async Task<Client?> GetClientByIdAsync(Guid id)
+        {
+            return await _appDbContext.Clients.FirstOrDefaultAsync(c => c.Id == id);
+        }
     }
 }

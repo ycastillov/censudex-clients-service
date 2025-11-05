@@ -77,5 +77,19 @@ namespace ClientsService.Src.Controllers
                 )
             );
         }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ApiResponse<ClientDto>>> GetClientById(Guid id)
+        {
+            var client = await _clientRepository.GetClientByIdAsync(id);
+            if (client == null)
+            {
+                return NotFound(new ApiResponse<ClientDto>(false, "Cliente no encontrado.", null));
+            }
+            var clientDto = _mapper.Map<ClientDto>(client);
+            return Ok(
+                new ApiResponse<ClientDto>(true, "Cliente obtenido exitosamente.", clientDto)
+            );
+        }
     }
 }
