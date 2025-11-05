@@ -12,5 +12,8 @@ namespace ClientsService.Src.Interfaces
 
         // Crea un nuevo cliente.
         Task<Client> CreateClientAsync(Client client);
+
+        // Obtener la lista de todos los clientes.
+        Task<IEnumerable<Client>> GetAllClientsAsync();
     }
 }

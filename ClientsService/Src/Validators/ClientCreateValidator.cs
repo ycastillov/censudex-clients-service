@@ -11,8 +11,7 @@ namespace ClientsService.Src.Validators
     {
         public ClientCreateValidator()
         {
-            RuleFor(x => x.Name).NotEmpty().MinimumLength(2);
-            RuleFor(x => x.LastName).NotEmpty().MinimumLength(2);
+            RuleFor(x => x.FullName).NotEmpty().MinimumLength(2);
             RuleFor(x => x.Username).NotEmpty().MinimumLength(4);
 
             RuleFor(x => x.Email)

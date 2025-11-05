@@ -11,14 +11,9 @@ namespace ClientsService.Src.Models
         public required Guid Id { get; set; }
 
         /// <summary>
-        /// Nombre del cliente.
+        /// Nombre completo del cliente.
         /// </summary>
-        public required string Name { get; set; }
-
-        /// <summary>
-        /// Apellido del cliente.
-        /// </summary>
-        public required string LastName { get; set; }
+        public required string FullName { get; set; }
 
         /// <summary>
         /// Correo electrónico del cliente.
@@ -53,7 +48,7 @@ namespace ClientsService.Src.Models
         /// <summary>
         /// Indica si la cuenta del cliente está activa.
         /// </summary>
-        public bool IsActive { get; set; } = true;
+        public bool IsActive { get; set; }
 
         /// <summary>
         /// Fecha de registro del cliente.

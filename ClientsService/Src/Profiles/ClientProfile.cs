@@ -16,7 +16,16 @@ namespace ClientsService.Src.Profiles
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.IsActive, opt => opt.Ignore())
                 .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
-                .ForMember(dest => dest.PasswordHash, opt => opt.MapFrom(src => src.Password));
+                .ForMember(dest => dest.PasswordHash, opt => opt.MapFrom(src => src.Password))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => true));
+
+            // Mapeo de Modelo → DTO
+            CreateMap<Client, ClientDto>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))
+                .ForMember(
+                    dest => dest.Status,
+                    opt => opt.MapFrom(src => src.IsActive ? "Active" : "Inactive")
+                );
         }
     }
 }

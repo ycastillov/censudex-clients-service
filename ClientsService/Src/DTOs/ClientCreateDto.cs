@@ -6,14 +6,9 @@ namespace ClientsService.Src.DTOs
     public class ClientCreateDto
     {
         /// <summary>
-        /// Nombre del cliente.
+        /// Nombre completo del cliente.
         /// </summary>
-        public required string Name { get; set; }
-
-        /// <summary>
-        /// Apellido del cliente.
-        /// </summary>
-        public required string LastName { get; set; }
+        public required string FullName { get; set; }
 
         /// <summary>
         /// Correo electrónico del cliente.

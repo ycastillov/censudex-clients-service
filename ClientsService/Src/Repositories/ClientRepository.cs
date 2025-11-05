@@ -37,5 +37,14 @@ namespace ClientsService.Src.Repositories
         {
             return await _appDbContext.Clients.AnyAsync(c => c.Email == email);
         }
+
+        /// <summary>
+        /// Obtiene la lista de todos los clientes.
+        /// </summary>
+        /// <returns>Retorna la lista de clientes.</returns>
+        public async Task<IEnumerable<Client>> GetAllClientsAsync()
+        {
+            return await _appDbContext.Clients.ToListAsync();
+        }
     }
 }

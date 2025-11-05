@@ -18,6 +18,12 @@ namespace ClientsService.Src.Controllers
         private readonly IClientRepository _clientRepository = clientRepository;
         private readonly IMapper _mapper = mapper;
 
+        /// <summary>
+        /// Crea un nuevo cliente.
+        /// </summary>
+        /// <param name="clientCreateDto">DTO para la creación de un nuevo cliente.</param>
+        /// <returns>Respuesta con el cliente creado o un error en caso de operación fallida.</returns>
+        [HttpPost]
         public async Task<ActionResult<ApiResponse<Client>>> CreateClient(
             [FromBody] ClientCreateDto clientCreateDto
         )
@@ -45,6 +51,30 @@ namespace ClientsService.Src.Controllers
             return CreatedAtAction(
                 nameof(CreateClient),
                 new ApiResponse<Client>(true, "Cliente creado exitosamente.", createdClient)
+            );
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<ApiResponse<IEnumerable<ClientDto>>>> GetAllClients()
+        {
+            var clients = await _clientRepository.GetAllClientsAsync();
+            if (clients == null || !clients.Any())
+            {
+                return NotFound(
+                    new ApiResponse<IEnumerable<ClientDto>>(
+                        false,
+                        "No se encontraron clientes.",
+                        null
+                    )
+                );
+            }
+            var clientsDto = _mapper.Map<IEnumerable<ClientDto>>(clients);
+            return Ok(
+                new ApiResponse<IEnumerable<ClientDto>>(
+                    true,
+                    "Lista de clientes obtenida exitosamente.",
+                    clientsDto
+                )
             );
         }
     }
