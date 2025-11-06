@@ -3,6 +3,9 @@ using FluentValidation;
 
 namespace ClientsService.Src.Validators
 {
+    /// <summary>
+    /// Validador para la creación de un nuevo cliente.
+    /// </summary>
     public class ClientCreateValidator : AbstractValidator<ClientCreateDto>
     {
         public ClientCreateValidator()

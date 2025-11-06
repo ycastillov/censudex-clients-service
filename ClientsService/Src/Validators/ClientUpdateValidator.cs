@@ -3,6 +3,9 @@ using FluentValidation;
 
 namespace ClientsService.Src.Validators
 {
+    /// <summary>
+    /// Validador para la actualización de un cliente existente.
+    /// </summary>
     public class ClientUpdateValidator : AbstractValidator<ClientUpdateDto>
     {
         public ClientUpdateValidator()
