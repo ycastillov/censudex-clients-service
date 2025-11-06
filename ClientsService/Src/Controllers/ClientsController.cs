@@ -30,6 +30,20 @@ namespace ClientsService.Src.Controllers
             [FromBody] ClientCreateDto clientCreateDto
         )
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(
+                    new ApiResponse<Client>(
+                        false,
+                        "Datos de cliente inválidos.",
+                        null,
+                        ModelState
+                            .Values.SelectMany(v => v.Errors)
+                            .Select(e => e.ErrorMessage)
+                            .ToList()
+                    )
+                );
+            }
             if (await _clientRepository.EmailExistsAsync(clientCreateDto.Email))
             {
                 return Conflict(
@@ -52,6 +66,7 @@ namespace ClientsService.Src.Controllers
             var createdClient = await _clientRepository.CreateClientAsync(newClient);
             return CreatedAtAction(
                 nameof(CreateClient),
+                new { id = createdClient.Id },
                 new ApiResponse<Client>(true, "Cliente creado exitosamente.", createdClient)
             );
         }
@@ -67,7 +82,7 @@ namespace ClientsService.Src.Controllers
                 .GetQueryableClients()
                 .Filter(clientParams.IsActive)
                 .Search(clientParams.Username, clientParams.Email, clientParams.FullName);
-                
+
             if (clients == null || !clients.Any())
             {
                 return NotFound(
@@ -119,6 +134,21 @@ namespace ClientsService.Src.Controllers
             [FromBody] ClientUpdateDto clientUpdateDto
         )
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(
+                    new ApiResponse<ClientDto>(
+                        false,
+                        "Datos de cliente inválidos.",
+                        null,
+                        ModelState
+                            .Values.SelectMany(v => v.Errors)
+                            .Select(e => e.ErrorMessage)
+                            .ToList()
+                    )
+                );
+            }
+
             var existingClient = await _clientRepository.GetClientByIdAsync(id);
             if (existingClient == null)
             {

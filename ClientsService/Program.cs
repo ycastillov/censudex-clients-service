@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+//builder.Configuration.AddEnvironmentVariables();
+
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
 
 builder.Services.AddControllers();
