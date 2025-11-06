@@ -1,8 +1,10 @@
 using AutoMapper;
 using ClientsService.Src.DTOs;
+using ClientsService.Src.Extensions;
 using ClientsService.Src.Helpers;
 using ClientsService.Src.Interfaces;
 using ClientsService.Src.Models;
+using ClientsService.Src.RequestHelpers;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ClientsService.Src.Controllers
@@ -59,9 +61,13 @@ namespace ClientsService.Src.Controllers
         /// </summary>
         /// <returns>Retorna la lista de clientes o un error en caso de no encontrar ninguno.</returns>
         [HttpGet]
-        public async Task<ActionResult<ApiResponse<IEnumerable<ClientDto>>>> GetAllClients()
+        public async Task<ActionResult<ApiResponse<IEnumerable<ClientDto>>>> GetAllClients([FromQuery] ClientParams clientParams)
         {
-            var clients = await _clientRepository.GetAllClientsAsync();
+            var clients = _clientRepository
+                .GetQueryableClients()
+                .Filter(clientParams.IsActive)
+                .Search(clientParams.Username, clientParams.Email, clientParams.FullName);
+                
             if (clients == null || !clients.Any())
             {
                 return NotFound(

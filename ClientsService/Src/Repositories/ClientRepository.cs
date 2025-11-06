@@ -80,5 +80,14 @@ namespace ClientsService.Src.Repositories
             _appDbContext.Clients.Update(client);
             await _appDbContext.SaveChangesAsync();
         }
+
+        /// <summary>
+        /// Obtiene clientes en una query
+        /// </summary>
+        /// <returns>IQueryable de clientes.</returns>
+        public IQueryable<Client> GetQueryableClients()
+        {
+            return _appDbContext.Clients.AsQueryable();
+        }
     }
 }

@@ -24,5 +24,8 @@ namespace ClientsService.Src.Interfaces
 
         // Desactivar un cliente.
         Task DeactivateClientAsync(Client client);
+        
+        // Obtener clientes en una query
+        IQueryable<Client> GetQueryableClients();
     }
 }
