@@ -68,5 +68,17 @@ namespace ClientsService.Src.Repositories
             await _appDbContext.SaveChangesAsync();
             return client;
         }
+
+        /// <summary>
+        /// Desactiva un cliente.
+        /// </summary>
+        /// <param name="client">Cliente a desactivar.</param>
+        /// <returns>True si se desactivó correctamente, false en caso contrario.</returns>
+        public async Task DeactivateClientAsync(Client client)
+        {
+            client.IsActive = false;
+            _appDbContext.Clients.Update(client);
+            await _appDbContext.SaveChangesAsync();
+        }
     }
 }

@@ -54,6 +54,10 @@ namespace ClientsService.Src.Controllers
             );
         }
 
+        /// <summary>
+        /// Obtiene todos los clientes.
+        /// </summary>
+        /// <returns>Retorna la lista de clientes o un error en caso de no encontrar ninguno.</returns>
         [HttpGet]
         public async Task<ActionResult<ApiResponse<IEnumerable<ClientDto>>>> GetAllClients()
         {
@@ -82,7 +86,7 @@ namespace ClientsService.Src.Controllers
         /// Obtiene un cliente por su ID.
         /// </summary>
         /// <param name="id">ID del cliente.</param>
-        /// <returns>Cliente encontrado o null si no existe.</returns>
+        /// <returns>Cliente encontrado o un error en caso de no existir.</returns>
         [HttpGet("{id}")]
         public async Task<ActionResult<ApiResponse<ClientDto>>> GetClientById(Guid id)
         {
@@ -97,6 +101,12 @@ namespace ClientsService.Src.Controllers
             );
         }
 
+        /// <summary>
+        /// Actualiza un cliente existente.
+        /// </summary>
+        /// <param name="id">ID del cliente a actualizar.</param>
+        /// <param name="clientUpdateDto">DTO con los datos a actualizar.</param>
+        /// <returns>Cliente actualizado o un error en caso de operación fallida.</returns>
         [HttpPut("{id}")]
         public async Task<ActionResult<ApiResponse<ClientDto>>> UpdateClient(
             Guid id,
@@ -135,6 +145,30 @@ namespace ClientsService.Src.Controllers
                     "Cliente actualizado exitosamente.",
                     updatedClientDto
                 )
+            );
+        }
+
+        /// <summary>
+        /// Desactiva un cliente.
+        /// </summary>
+        /// <param name="id">ID del cliente a desactivar.</param>
+        /// <returns>Cliente desactivado o un error en caso de operación fallida.</returns>
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<ApiResponse<ClientDto>>> DeactivateClient(Guid id)
+        {
+            var existingClient = await _clientRepository.GetClientByIdAsync(id);
+            if (existingClient == null)
+            {
+                return NotFound(
+                    new ApiResponse<ClientDto>(false, "Cliente a desactivar no encontrado.", null)
+                );
+            }
+
+            await _clientRepository.DeactivateClientAsync(existingClient);
+            var clientDto = _mapper.Map<ClientDto>(existingClient);
+
+            return Ok(
+                new ApiResponse<ClientDto>(true, "Cliente desactivado exitosamente.", clientDto)
             );
         }
     }

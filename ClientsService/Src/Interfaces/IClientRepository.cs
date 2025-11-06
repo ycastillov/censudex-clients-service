@@ -21,5 +21,8 @@ namespace ClientsService.Src.Interfaces
 
         // Actualizar un cliente existente.
         Task<Client> UpdateClientAsync(Client client);
+
+        // Desactivar un cliente.
+        Task DeactivateClientAsync(Client client);
     }
 }
