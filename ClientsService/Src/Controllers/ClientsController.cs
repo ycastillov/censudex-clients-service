@@ -78,6 +78,11 @@ namespace ClientsService.Src.Controllers
             );
         }
 
+        /// <summary>
+        /// Obtiene un cliente por su ID.
+        /// </summary>
+        /// <param name="id">ID del cliente.</param>
+        /// <returns>Cliente encontrado o null si no existe.</returns>
         [HttpGet("{id}")]
         public async Task<ActionResult<ApiResponse<ClientDto>>> GetClientById(Guid id)
         {
@@ -89,6 +94,47 @@ namespace ClientsService.Src.Controllers
             var clientDto = _mapper.Map<ClientDto>(client);
             return Ok(
                 new ApiResponse<ClientDto>(true, "Cliente obtenido exitosamente.", clientDto)
+            );
+        }
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult<ApiResponse<ClientDto>>> UpdateClient(
+            Guid id,
+            [FromBody] ClientUpdateDto clientUpdateDto
+        )
+        {
+            var existingClient = await _clientRepository.GetClientByIdAsync(id);
+            if (existingClient == null)
+            {
+                return NotFound(
+                    new ApiResponse<ClientDto>(false, "Cliente a actualizar no encontrado.", null)
+                );
+            }
+
+            // Actualizar los campos del cliente existente
+            existingClient.FullName = clientUpdateDto.FullName ?? existingClient.FullName;
+            existingClient.Email = clientUpdateDto.Email ?? existingClient.Email;
+            existingClient.Username = clientUpdateDto.Username ?? existingClient.Username;
+            existingClient.BirthDate = clientUpdateDto.BirthDate ?? existingClient.BirthDate;
+            existingClient.Address = clientUpdateDto.Address ?? existingClient.Address;
+            existingClient.PhoneNumber = clientUpdateDto.PhoneNumber ?? existingClient.PhoneNumber;
+
+            if (!string.IsNullOrEmpty(clientUpdateDto.Password))
+            {
+                existingClient.PasswordHash = BCrypt.Net.BCrypt.HashPassword(
+                    clientUpdateDto.Password
+                );
+            }
+
+            var updatedClient = await _clientRepository.UpdateClientAsync(existingClient);
+            var updatedClientDto = _mapper.Map<ClientDto>(updatedClient);
+
+            return Ok(
+                new ApiResponse<ClientDto>(
+                    true,
+                    "Cliente actualizado exitosamente.",
+                    updatedClientDto
+                )
             );
         }
     }

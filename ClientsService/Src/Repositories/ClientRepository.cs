@@ -56,5 +56,17 @@ namespace ClientsService.Src.Repositories
         {
             return await _appDbContext.Clients.FirstOrDefaultAsync(c => c.Id == id);
         }
+
+        /// <summary>
+        /// Actualiza un cliente existente.
+        /// </summary>
+        /// <param name="client">Cliente a actualizar.</param>
+        /// <returns>Cliente actualizado.</returns>
+        public async Task<Client> UpdateClientAsync(Client client)
+        {
+            _appDbContext.Clients.Update(client);
+            await _appDbContext.SaveChangesAsync();
+            return client;
+        }
     }
 }

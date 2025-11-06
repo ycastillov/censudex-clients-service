@@ -18,5 +18,8 @@ namespace ClientsService.Src.Interfaces
 
         // Obtener un cliente por su ID.
         Task<Client?> GetClientByIdAsync(Guid id);
+
+        // Actualizar un cliente existente.
+        Task<Client> UpdateClientAsync(Client client);
     }
 }
