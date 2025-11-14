@@ -17,12 +17,12 @@ namespace ClientsService.Src.Data
             var context = serviceProvider.GetRequiredService<AppDbContext>() ??
                 throw new InvalidOperationException("No se pudo obtener el contexto de la base de datos.");
 
-            context.Database.MigrateAsync();
-
             if (context.Clients.Any())
             {
                 return;
             }
+
+            context.Database.MigrateAsync();            
 
             var faker = new Faker("es");
 
