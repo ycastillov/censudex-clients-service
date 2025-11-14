@@ -5,6 +5,6 @@ namespace ClientsService.Src.Data
 {
     public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
     {
-        public DbSet<Client> Clients => Set<Client>();
+        public DbSet<Client> Clients { get; set;} = null!;
     }
 }
