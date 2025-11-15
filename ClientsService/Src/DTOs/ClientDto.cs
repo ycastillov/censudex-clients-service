@@ -11,7 +11,7 @@ namespace ClientsService.Src.DTOs
         /// Nombre completo del cliente.
         /// </summary>
         public required string FullName { get; set; }
-        
+
         /// <summary>
         /// Correo electrónico del cliente.
         /// </summary>
@@ -31,17 +31,17 @@ namespace ClientsService.Src.DTOs
         /// Fecha de nacimiento del cliente.
         /// </summary>
         public required DateOnly BirthDate { get; set; }
-        
+
         /// <summary>
         /// Dirección del cliente.
         /// </summary>
         public required string Address { get; set; }
-        
+
         /// <summary>
         /// Número de teléfono del cliente.
         /// </summary>
         public required string PhoneNumber { get; set; }
-        
+
         /// <summary>
         /// Fecha de registro del cliente.
         /// </summary>

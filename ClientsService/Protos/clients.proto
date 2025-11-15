@@ -1,10 +1,12 @@
 syntax = "proto3";
 
+import "google/protobuf/wrappers.proto";
+
 option csharp_namespace = "ClientsService.Grpc";
 
 service ClientsGrpc {
+  rpc GetAllClients(GetClientsRequest) returns (ClientsListResponse);
   rpc CreateClient (CreateClientRequest) returns (ClientResponse);
-  rpc GetAllClients (Empty) returns (ClientsListResponse);
   rpc GetClientById (GetClientByIdRequest) returns (ClientResponse);
   rpc UpdateClient (UpdateClientRequest) returns (ClientResponse);
   rpc DeactivateClient (DeactivateClientRequest) returns (ClientResponse);
@@ -13,7 +15,14 @@ service ClientsGrpc {
   rpc GetClientByIdentifier (GetClientByIdentifierRequest) returns (ClientResponse);
 }
 
-message Empty {}
+message GetClientsRequest {
+  string username = 1;
+  string email = 2;
+  string fullName = 3;
+
+  // Boolean en gRPC no puede ser null → Usamos wrapper
+  google.protobuf.BoolValue isActive = 4;
+}
 
 message CreateClientRequest {
   string fullName = 1;
@@ -56,8 +65,7 @@ message ClientResponse {
   string birthDate = 5;
   string address = 6;
   string phoneNumber = 7;
-  string passwordHash = 8;
-  bool isActive = 9;
+  bool isActive = 8;
 }
 
 message ClientsListResponse {

@@ -26,21 +26,6 @@ El Clients Service implementa:
   * Models
   * Data Layer (EF Core)
 
-### 🔷 Diagrama de Arquitectura
-
-```mermaid
-flowchart TD
-    A[API Gateway<br>gRPC Client] -->|gRPC Requests| B1
-
-    subgraph Clients_Service
-        B1[gRPC Service<br>(ClientsGrpcService)] 
-        B1 --> B2[Validation Layer<br>FluentValidation]
-        B2 --> B3[AutoMapper]
-        B3 --> B4[Repository Layer]
-        B4 --> B5[(PostgreSQL Database)]
-    end
-```
-
 ---
 
 ## 🧩 Patrones de Diseño Implementados
@@ -92,7 +77,7 @@ flowchart TD
 
 ## 📡 Endpoints gRPC Disponibles
 
-Puerto por defecto: **[https://localhost:5171](https://localhost:5171)**
+Puerto por defecto: **[https://localhost:7181](https://localhost:7181)**
 
 | Método             | Descripción                     |
 | ------------------ | ------------------------------- |
@@ -141,39 +126,33 @@ Mapas definidos en **ClientProfile.cs**.
 
 ## 🛠 Instalación y Configuración
 
-### 1. Clonar repositorio
+### 1. Crear archivo `.env`
+
+Crea un archivo **.env** en la raíz del proyecto:
+
+```
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_DB=clients_db
+POSTGRES_USER=censudex
+POSTGRES_PASSWORD=censudex123
+```
+
+También existe un archivo **.env.example** como referencia.
+
+---
+
+### 2. Levantar PostgreSQL
 
 ```bash
-git clone https://github.com/YamirCastillo/censudex-clients-service
-
-cd censudex-clients-service
+docker-compose up -d
 ```
+
+Esto iniciará la base de datos requerida por el servicio.
 
 ---
 
-### 2. Configurar PostgreSQL
-
-Crear base de datos:
-
-```sql
-CREATE DATABASE clients_db;
-```
-
----
-
-### 3. Configurar appsettings.json
-
-```json
-{
-  "ConnectionStrings": {
-    "PostgresConnection": "Host=localhost;Port=5432;Database=clients_db;Username=postgres;Password=yourpassword"
-  }
-}
-```
-
----
-
-### 4. Migraciones e inicialización
+### 3. Ejecutar migraciones (solo primera vez)
 
 ```bash
 dotnet ef database update
@@ -181,18 +160,16 @@ dotnet ef database update
 
 ---
 
-### 5. Restaurar dependencias
-
-```bash
-dotnet restore
-```
-
----
-
-### 6. Ejecutar gRPC Service
+### 4. Ejecutar el servicio
 
 ```bash
 dotnet run
+```
+
+El servicio estará disponible en:
+
+```
+https://localhost:7181   (gRPC)
 ```
 
 ---
@@ -203,7 +180,7 @@ dotnet run
 2. URL:
 
 ```
-https://localhost:5171
+https://localhost:7181
 ```
 
 3. Importar archivo `clients.proto`
@@ -266,7 +243,6 @@ https://localhost:5171
 
 ```
 Src/
- ├── Controllers/ (eliminado; reemplazado por gRPC)
  ├── Services/
  │   └── ClientsGrpcService.cs
  ├── Repositories/
@@ -275,23 +251,29 @@ Src/
  │   ├── ClientDto.cs
  │   ├── ClientCreateDto.cs
  │   └── ClientUpdateDto.cs
+ ├── Extensions/
+ │   └── ClientExtensions.cs
+ ├── Grpc/
+ │   └── ClientsGrpcService.cs
+ ├── Interfaces/
+ │   └── IClientRepository.cs
  ├── Validators/
  │   ├── ClientCreateValidator.cs
  │   └── ClientUpdateValidator.cs
  ├── Profiles/
- │   └── ClientProfile.cs
- ├── Protos/
- │   └── clients.proto
+ │   ├── ClientProfile.cs
+ │   └── GrpcClientProfile.cs
  ├── Models/
  │   └── Client.cs
+ ├── Profiles/
+ │   ├── ClientProfile.cs
+ │   └── GrpcClientProfile.cs
  └── Data/
-     └── AppDbContext.cs
+     ├── AppDbContext.cs
+     ├── DataSeeder.cs
+     └── Migrations/
+Protos/
+ └── clients.proto
 ```
-
----
-
-## 📄 Licencia
-
-Proyecto desarrollado para fines académicos como parte del Taller de Arquitectura de Sistemas – Censudex.
 
 ---

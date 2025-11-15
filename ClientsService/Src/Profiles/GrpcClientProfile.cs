@@ -34,8 +34,23 @@ namespace ClientsService.Src.Profiles
                 .ForMember(
                     dest => dest.BirthDate,
                     opt => opt.MapFrom(src => src.BirthDate.ToString())
+                );
+
+            //
+            // DTO → gRPC Response (nuevo mapeo)
+            //
+            CreateMap<ClientDto, ClientResponse>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName))
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
+                .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.Username))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.Status == "Active"))
+                .ForMember(
+                    dest => dest.BirthDate,
+                    opt => opt.MapFrom(src => src.BirthDate.ToString())
                 )
-                .ForMember(dest => dest.PasswordHash, opt => opt.MapFrom(src => src.PasswordHash));
+                .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber))
+                .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address));
         }
     }
 }

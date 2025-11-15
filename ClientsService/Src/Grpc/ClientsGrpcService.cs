@@ -1,10 +1,13 @@
 using AutoMapper;
 using ClientsService.Grpc;
 using ClientsService.Src.DTOs;
+using ClientsService.Src.Extensions;
 using ClientsService.Src.Interfaces;
 using ClientsService.Src.Models;
+using ClientsService.Src.RequestHelpers;
 using FluentValidation;
 using Grpc.Core;
+using Microsoft.EntityFrameworkCore;
 
 public class ClientsGrpcService : ClientsGrpc.ClientsGrpcBase
 {
@@ -78,28 +81,51 @@ public class ClientsGrpcService : ClientsGrpc.ClientsGrpcBase
     }
 
     public override async Task<ClientsListResponse> GetAllClients(
-        Empty request,
+        GetClientsRequest request,
         ServerCallContext context
     )
     {
         try
         {
-            var clients = await _repo.GetAllClientsAsync();
-            if (clients == null || !clients.Any())
-                throw new RpcException(new Status(StatusCode.NotFound, "No clients found."));
+            // Convertimos request gRPC → ClientParams
+            var filters = new ClientParams
+            {
+                Username = string.IsNullOrWhiteSpace(request.Username) ? null : request.Username,
+                Email = string.IsNullOrWhiteSpace(request.Email) ? null : request.Email,
+                FullName = string.IsNullOrWhiteSpace(request.FullName) ? null : request.FullName,
+                IsActive = request.IsActive,
+            };
 
+            // Obtener IQueryable
+            var query = _repo.GetQueryableClients();
+
+            // Aplicar filtros dinámicos
+            query = query
+                .Filter(filters.IsActive)
+                .Search(filters.Username, filters.Email, filters.FullName);
+
+            // Ejecutar query
+            var clients = await query.ToListAsync();
+
+            // Mapear resultados
             var response = new ClientsListResponse();
-            response.Clients.AddRange(_mapper.Map<IEnumerable<ClientResponse>>(clients));
+            foreach (var client in clients)
+            {
+                var dto = _mapper.Map<ClientDto>(client);
+                var grpcModel = _mapper.Map<ClientResponse>(dto);
+                response.Clients.Add(grpcModel);
+            }
 
             return response;
         }
-        catch (RpcException)
-        {
-            throw;
-        }
         catch (Exception ex)
         {
-            throw new RpcException(new Status(StatusCode.Internal, ex.Message));
+            throw new RpcException(
+                new Status(
+                    StatusCode.Internal,
+                    $"{ex.Message} Error interno al procesar la solicitud"
+                )
+            );
         }
     }
 
