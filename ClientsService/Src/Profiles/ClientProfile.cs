@@ -1,4 +1,5 @@
 using AutoMapper;
+using ClientsService.Grpc;
 using ClientsService.Src.DTOs;
 using ClientsService.Src.Models;
 
@@ -11,14 +12,18 @@ namespace ClientsService.Src.Profiles
     {
         public ClientProfile()
         {
-            // Mapeo de DTO → Modelo
+            //
+            // DTO → Modelo
+            //
             CreateMap<ClientCreateDto, Client>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.PasswordHash, opt => opt.MapFrom(src => src.Password))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => true));
 
-            // Mapeo de Modelo → DTO
+            //
+            // Modelo → DTO general
+            //
             CreateMap<Client, ClientDto>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))
                 .ForMember(

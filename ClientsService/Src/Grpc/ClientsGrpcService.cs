@@ -1,18 +1,29 @@
 using AutoMapper;
 using ClientsService.Grpc;
+using ClientsService.Src.DTOs;
 using ClientsService.Src.Interfaces;
 using ClientsService.Src.Models;
+using FluentValidation;
 using Grpc.Core;
 
 public class ClientsGrpcService : ClientsGrpc.ClientsGrpcBase
 {
     private readonly IClientRepository _repo;
     private readonly IMapper _mapper;
+    private readonly IValidator<ClientCreateDto> _createValidator;
+    private readonly IValidator<ClientUpdateDto> _updateValidator;
 
-    public ClientsGrpcService(IClientRepository repo, IMapper mapper)
+    public ClientsGrpcService(
+        IClientRepository repo,
+        IMapper mapper,
+        IValidator<ClientCreateDto> createValidator,
+        IValidator<ClientUpdateDto> updateValidator
+    )
     {
         _repo = repo;
         _mapper = mapper;
+        _createValidator = createValidator;
+        _updateValidator = updateValidator;
     }
 
     public override async Task<ClientResponse> CreateClient(
@@ -20,26 +31,50 @@ public class ClientsGrpcService : ClientsGrpc.ClientsGrpcBase
         ServerCallContext context
     )
     {
-        if (await _repo.EmailExistsAsync(request.Email))
-            throw new RpcException(new Status(StatusCode.AlreadyExists, "Email already exists."));
-
-        var client = new Client
+        try
         {
-            Id = Guid.NewGuid(),
-            FullName = request.FullName,
-            Email = request.Email,
-            Username = request.Username,
-            BirthDate = DateOnly.Parse(request.BirthDate),
-            Address = request.Address,
-            PhoneNumber = request.PhoneNumber,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
-            IsActive = true,
-            CreatedAt = DateTime.UtcNow,
-        };
+            if (await _repo.EmailExistsAsync(request.Email))
+                throw new RpcException(
+                    new Status(StatusCode.AlreadyExists, "Email already exists.")
+                );
 
-        await _repo.CreateClientAsync(client);
+            var dto = new ClientCreateDto
+            {
+                FullName = request.FullName,
+                Email = request.Email,
+                Username = request.Username,
+                BirthDate = DateOnly.Parse(request.BirthDate),
+                Address = request.Address,
+                PhoneNumber = request.PhoneNumber,
+                Password = request.Password,
+            };
 
-        return ToGrpcClient(client);
+            var validation = await _createValidator.ValidateAsync(dto);
+            if (!validation.IsValid)
+            {
+                throw new RpcException(
+                    new Status(
+                        StatusCode.InvalidArgument,
+                        string.Join(" | ", validation.Errors.Select(e => e.ErrorMessage))
+                    )
+                );
+            }
+
+            var client = _mapper.Map<Client>(dto);
+            client.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+
+            var created = await _repo.CreateClientAsync(client);
+
+            return _mapper.Map<ClientResponse>(created);
+        }
+        catch (RpcException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            throw new RpcException(new Status(StatusCode.Internal, ex.Message));
+        }
     }
 
     public override async Task<ClientsListResponse> GetAllClients(
@@ -47,12 +82,25 @@ public class ClientsGrpcService : ClientsGrpc.ClientsGrpcBase
         ServerCallContext context
     )
     {
-        var clients = await _repo.GetAllClientsAsync();
+        try
+        {
+            var clients = await _repo.GetAllClientsAsync();
+            if (clients == null || !clients.Any())
+                throw new RpcException(new Status(StatusCode.NotFound, "No clients found."));
 
-        var response = new ClientsListResponse();
-        response.Clients.AddRange(clients.Select(c => ToGrpcClient(c)));
+            var response = new ClientsListResponse();
+            response.Clients.AddRange(_mapper.Map<IEnumerable<ClientResponse>>(clients));
 
-        return response;
+            return response;
+        }
+        catch (RpcException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            throw new RpcException(new Status(StatusCode.Internal, ex.Message));
+        }
     }
 
     public override async Task<ClientResponse> GetClientById(
@@ -60,12 +108,22 @@ public class ClientsGrpcService : ClientsGrpc.ClientsGrpcBase
         ServerCallContext context
     )
     {
-        var client = await _repo.GetClientByIdAsync(Guid.Parse(request.Id));
+        try
+        {
+            var client = await _repo.GetClientByIdAsync(Guid.Parse(request.Id));
+            if (client == null)
+                throw new RpcException(new Status(StatusCode.NotFound, "Client not found."));
 
-        if (client == null)
-            throw new RpcException(new Status(StatusCode.NotFound, "Client not found."));
-
-        return ToGrpcClient(client);
+            return _mapper.Map<ClientResponse>(client);
+        }
+        catch (RpcException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            throw new RpcException(new Status(StatusCode.Internal, ex.Message));
+        }
     }
 
     public override async Task<ClientResponse> UpdateClient(
@@ -73,22 +131,54 @@ public class ClientsGrpcService : ClientsGrpc.ClientsGrpcBase
         ServerCallContext context
     )
     {
-        var client = await _repo.GetClientByIdAsync(Guid.Parse(request.Id));
-        if (client == null)
-            throw new RpcException(new Status(StatusCode.NotFound, "Client not found."));
+        try
+        {
+            var client = await _repo.GetClientByIdAsync(Guid.Parse(request.Id));
+            if (client == null)
+                throw new RpcException(new Status(StatusCode.NotFound, "Client not found."));
 
-        client.FullName = request.FullName ?? client.FullName;
-        client.Email = request.Email ?? client.Email;
-        client.Username = request.Username ?? client.Username;
-        client.Address = request.Address ?? client.Address;
-        client.PhoneNumber = request.PhoneNumber ?? client.PhoneNumber;
+            var dto = _mapper.Map<ClientUpdateDto>(request);
+            var validation = await _updateValidator.ValidateAsync(dto);
+            if (!validation.IsValid)
+            {
+                throw new RpcException(
+                    new Status(
+                        StatusCode.InvalidArgument,
+                        string.Join(" | ", validation.Errors.Select(e => e.ErrorMessage))
+                    )
+                );
+            }
 
-        if (!string.IsNullOrWhiteSpace(request.Password))
-            client.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
+            if (!string.IsNullOrWhiteSpace(request.FullName))
+                client.FullName = request.FullName;
 
-        await _repo.UpdateClientAsync(client);
+            if (!string.IsNullOrWhiteSpace(request.Email))
+                client.Email = request.Email;
 
-        return ToGrpcClient(client);
+            if (!string.IsNullOrWhiteSpace(request.Username))
+                client.Username = request.Username;
+
+            if (!string.IsNullOrWhiteSpace(request.Address))
+                client.Address = request.Address;
+
+            if (!string.IsNullOrWhiteSpace(request.PhoneNumber))
+                client.PhoneNumber = request.PhoneNumber;
+
+            if (!string.IsNullOrWhiteSpace(request.Password))
+                client.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
+
+            var updated = await _repo.UpdateClientAsync(client);
+
+            return _mapper.Map<ClientResponse>(updated);
+        }
+        catch (RpcException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            throw new RpcException(new Status(StatusCode.Internal, ex.Message));
+        }
     }
 
     public override async Task<ClientResponse> DeactivateClient(
@@ -96,43 +186,23 @@ public class ClientsGrpcService : ClientsGrpc.ClientsGrpcBase
         ServerCallContext context
     )
     {
-        var client = await _repo.GetClientByIdAsync(Guid.Parse(request.Id));
-        if (client == null)
-            throw new RpcException(new Status(StatusCode.NotFound, "Client not found."));
-
-        await _repo.DeactivateClientAsync(client);
-
-        return ToGrpcClient(client);
-    }
-
-    public override async Task<ClientResponse> GetClientByIdentifier(
-        GetClientByIdentifierRequest request,
-        ServerCallContext context
-    )
-    {
-        var identifier = request.Identifier;
-
-        var client = _repo
-            .GetQueryableClients()
-            .FirstOrDefault(c => c.Email == identifier || c.Username == identifier);
-
-        if (client == null)
-            throw new RpcException(new Status(StatusCode.NotFound, "Client not found."));
-
-        return ToGrpcClient(client);
-    }
-
-    private ClientResponse ToGrpcClient(Client c) =>
-        new ClientResponse
+        try
         {
-            Id = c.Id.ToString(),
-            FullName = c.FullName,
-            Email = c.Email,
-            Username = c.Username,
-            BirthDate = c.BirthDate.ToString(),
-            Address = c.Address,
-            PhoneNumber = c.PhoneNumber,
-            PasswordHash = c.PasswordHash,
-            IsActive = c.IsActive,
-        };
+            var client = await _repo.GetClientByIdAsync(Guid.Parse(request.Id));
+            if (client == null)
+                throw new RpcException(new Status(StatusCode.NotFound, "Client not found."));
+
+            await _repo.DeactivateClientAsync(client);
+
+            return _mapper.Map<ClientResponse>(client);
+        }
+        catch (RpcException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            throw new RpcException(new Status(StatusCode.Internal, ex.Message));
+        }
+    }
 }

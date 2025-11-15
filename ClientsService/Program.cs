@@ -2,12 +2,23 @@ using ClientsService.Src.Data;
 using ClientsService.Src.Interfaces;
 using ClientsService.Src.Repositories;
 using ClientsService.Src.Validators;
+using DotNetEnv;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Cargar archivo .env (si existe)
+Env.Load();
+
+// Construir el connection string desde variables de entorno
+var dbHost = Environment.GetEnvironmentVariable("POSTGRES_HOST");
+var dbPort = Environment.GetEnvironmentVariable("POSTGRES_PORT");
+var dbName = Environment.GetEnvironmentVariable("POSTGRES_DB");
+var dbUser = Environment.GetEnvironmentVariable("POSTGRES_USER");
+var dbPass = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD");
 
 builder.WebHost.ConfigureKestrel(options =>
 {
@@ -21,29 +32,21 @@ builder.WebHost.ConfigureKestrel(options =>
     );
 });
 
-//builder.Configuration.AddEnvironmentVariables();
-
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("PostgresConnection"))
-);
+var connectionString =
+    $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPass}";
 
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-builder.Services.AddFluentValidationAutoValidation();
-builder.Services.AddFluentValidationClientsideAdapters();
-builder.Services.AddValidatorsFromAssemblyContaining<ClientCreateValidator>();
-builder.Services.AddValidatorsFromAssemblyContaining<ClientUpdateValidator>();
-
 builder.Services.AddGrpc();
 builder.Services.AddGrpcReflection();
 
-// builder.Services.AddCors(options =>
-// {
-//     options.AddPolicy(
-//         "AllowAll",
-//         policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()
-//     );
-// });
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddFluentValidationAutoValidation();
+
+// builder.Services.AddFluentValidationClientsideAdapters();
+builder.Services.AddValidatorsFromAssemblyContaining<ClientCreateValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<ClientUpdateValidator>();
+
+builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
 
 var app = builder.Build();
 
@@ -56,8 +59,6 @@ using (var scope = app.Services.CreateScope())
 
 app.UseRouting();
 app.UseGrpcWeb();
-
-// app.UseCors("AllowAll");
 
 app.MapGrpcService<ClientsGrpcService>().EnableGrpcWeb();
 

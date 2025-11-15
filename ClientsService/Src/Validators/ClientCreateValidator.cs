@@ -19,6 +19,8 @@ namespace ClientsService.Src.Validators
                 .Matches(@"^[A-Za-z0-9._%+-]+@censudex\.cl$")
                 .WithMessage("El correo debe pertenecer al dominio @censudex.cl");
 
+            RuleFor(x => x.Address).NotEmpty().WithMessage("La dirección no puede estar vacía");
+
             RuleFor(x => x.PhoneNumber)
                 .Matches(@"^\+?56\d{9}$")
                 .WithMessage("Número debe ser válido en Chile (+569XXXXXXXX)");
@@ -31,15 +33,15 @@ namespace ClientsService.Src.Validators
                 .NotEmpty()
                 .WithMessage("La contraseña no puede estar vacía")
                 .MinimumLength(8)
-                .WithMessage("Debe tener al menos 8 caracteres")
+                .WithMessage("La contraseña debe tener al menos 8 caracteres")
                 .Matches(@"[A-Z]")
-                .WithMessage("Debe contener una letra mayúscula")
+                .WithMessage("La contraseña debe contener una letra mayúscula")
                 .Matches(@"[a-z]")
-                .WithMessage("Debe contener una letra minúscula")
+                .WithMessage("La contraseña debe contener una letra minúscula")
                 .Matches(@"\d")
-                .WithMessage("Debe contener un número")
+                .WithMessage("La contraseña debe contener un número")
                 .Matches(@"[\W_]")
-                .WithMessage("Debe contener un carácter especial");
+                .WithMessage("La contraseña debe contener un carácter especial");
         }
 
         private bool Be18OrOlder(DateOnly birthDate) =>

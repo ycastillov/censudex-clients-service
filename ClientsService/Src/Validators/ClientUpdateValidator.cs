@@ -19,6 +19,11 @@ namespace ClientsService.Src.Validators
                 .WithMessage("El correo debe pertenecer al dominio @censudex.cl")
                 .When(x => !string.IsNullOrEmpty(x.Email));
 
+            RuleFor(x => x.Address)
+                .NotEmpty()
+                .WithMessage("La dirección no puede estar vacía")
+                .When(x => !string.IsNullOrEmpty(x.Address));
+
             RuleFor(x => x.PhoneNumber)
                 .Matches(@"^\+?56\d{9}$")
                 .WithMessage("Número debe ser válido en Chile (+569XXXXXXXX)")
@@ -31,15 +36,15 @@ namespace ClientsService.Src.Validators
 
             RuleFor(x => x.Password)
                 .MinimumLength(8)
-                .WithMessage("Debe tener al menos 8 caracteres")
+                .WithMessage("La contraseña debe tener al menos 8 caracteres")
                 .Matches(@"[A-Z]")
-                .WithMessage("Debe contener una letra mayúscula")
+                .WithMessage("La contraseña debe contener una letra mayúscula")
                 .Matches(@"[a-z]")
-                .WithMessage("Debe contener una letra minúscula")
+                .WithMessage("La contraseña debe contener una letra minúscula")
                 .Matches(@"\d")
-                .WithMessage("Debe contener un número")
+                .WithMessage("La contraseña debe contener un número")
                 .Matches(@"[\W_]")
-                .WithMessage("Debe contener un carácter especial")
+                .WithMessage("La contraseña debe contener un carácter especial")
                 .When(x => !string.IsNullOrEmpty(x.Password));
         }
 
