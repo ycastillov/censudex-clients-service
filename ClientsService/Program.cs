@@ -10,27 +10,27 @@ var builder = WebApplication.CreateBuilder(args);
 
 //builder.Configuration.AddEnvironmentVariables();
 
-builder.Services.AddScoped<IClientRepository, ClientRepository>();
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-builder.Services.AddGrpc();
-builder.Services.AddControllers();
-builder.Services.AddFluentValidationAutoValidation();
-builder.Services.AddFluentValidationClientsideAdapters();
-builder.Services.AddValidatorsFromAssemblyContaining<ClientCreateValidator>();
-builder.Services.AddValidatorsFromAssemblyContaining<ClientUpdateValidator>();
-builder.Services.AddEndpointsApiExplorer();
-
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("PostgresConnection"))
 );
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy(
-        "AllowAll",
-        policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()
-    );
-});
+builder.Services.AddScoped<IClientRepository, ClientRepository>();
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddFluentValidationClientsideAdapters();
+builder.Services.AddValidatorsFromAssemblyContaining<ClientCreateValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<ClientUpdateValidator>();
+
+builder.Services.AddGrpc();
+builder.Services.AddGrpcReflection();
+
+// builder.Services.AddCors(options =>
+// {
+//     options.AddPolicy(
+//         "AllowAll",
+//         policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()
+//     );
+// });
 
 var app = builder.Build();
 
@@ -41,12 +41,15 @@ using (var scope = app.Services.CreateScope())
     DataSeeder.Initialize(services);
 }
 
-app.MapGrpcService<ClientsGrpcService>();
+app.UseRouting();
+app.UseGrpcWeb();
+
+// app.UseCors("AllowAll");
+
+app.MapGrpcService<ClientsGrpcService>().EnableGrpcWeb();
+
+app.MapGrpcReflectionService();
+
 app.MapGet("/", () => "ClientsService running with gRPC");
-
-app.UseCors("AllowAll");
-app.UseAuthorization();
-
-app.MapControllers();
 
 app.Run();
