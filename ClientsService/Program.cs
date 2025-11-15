@@ -11,8 +11,9 @@ var builder = WebApplication.CreateBuilder(args);
 //builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
-builder.Services.AddControllers();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddGrpc();
+builder.Services.AddControllers();
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddFluentValidationClientsideAdapters();
 builder.Services.AddValidatorsFromAssemblyContaining<ClientCreateValidator>();
@@ -40,8 +41,12 @@ using (var scope = app.Services.CreateScope())
     DataSeeder.Initialize(services);
 }
 
+app.MapGrpcService<ClientsGrpcService>();
+app.MapGet("/", () => "ClientsService running with gRPC");
+
 app.UseCors("AllowAll");
 app.UseAuthorization();
+
 app.MapControllers();
 
 app.Run();

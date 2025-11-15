@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using ClientsService.Src.Data;
 using ClientsService.Src.Interfaces;
 using ClientsService.Src.Models;

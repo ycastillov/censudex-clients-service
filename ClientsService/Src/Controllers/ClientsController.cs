@@ -76,7 +76,9 @@ namespace ClientsService.Src.Controllers
         /// </summary>
         /// <returns>Retorna la lista de clientes o un error en caso de no encontrar ninguno.</returns>
         [HttpGet]
-        public async Task<ActionResult<ApiResponse<IEnumerable<ClientDto>>>> GetAllClients([FromQuery] ClientParams clientParams)
+        public async Task<ActionResult<ApiResponse<IEnumerable<ClientDto>>>> GetAllClients(
+            [FromQuery] ClientParams clientParams
+        )
         {
             var clients = _clientRepository
                 .GetQueryableClients()
