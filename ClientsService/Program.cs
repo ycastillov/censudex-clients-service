@@ -4,9 +4,22 @@ using ClientsService.Src.Repositories;
 using ClientsService.Src.Validators;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(
+        7181,
+        o =>
+        {
+            o.UseHttps(); // necesario para gRPC
+            o.Protocols = HttpProtocols.Http2;
+        }
+    );
+});
 
 //builder.Configuration.AddEnvironmentVariables();
 
