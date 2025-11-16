@@ -207,6 +207,33 @@ public class ClientsGrpcService : ClientsGrpc.ClientsGrpcBase
         }
     }
 
+    public override async Task<AuthClientResponse> GetClientByIdentifier(
+        GetClientByIdentifierRequest request,
+        ServerCallContext context
+    )
+    {
+        var identifier = request.Identifier.ToLower();
+
+        var client = await _repo
+            .GetQueryableClients()
+            .Where(c => c.Email.ToLower() == identifier || c.Username.ToLower() == identifier)
+            .FirstOrDefaultAsync();
+
+        if (client == null)
+        {
+            return new AuthClientResponse(); // All fields empty → AuthService interprets as null
+        }
+
+        return new AuthClientResponse
+        {
+            Id = client.Id.ToString(),
+            Email = client.Email,
+            Username = client.Username,
+            IsActive = client.IsActive,
+            PasswordHash = client.PasswordHash,
+        };
+    }
+
     public override async Task<ClientResponse> DeactivateClient(
         DeactivateClientRequest request,
         ServerCallContext context
