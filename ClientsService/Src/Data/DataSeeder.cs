@@ -32,7 +32,7 @@ namespace ClientsService.Src.Data
                 {
                     Id = Guid.NewGuid(),
                     FullName = "Administrador del sistema",
-                    Email = "admin@censudex.com",
+                    Email = "admin@censudex.cl",
                     Username = "admin",
                     BirthDate = DateOnly.FromDateTime(DateTime.UtcNow.AddYears(-30)),
                     Address = "Calle Falsa 123, Ciudad, País",

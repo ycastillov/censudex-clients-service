@@ -231,6 +231,7 @@ public class ClientsGrpcService : ClientsGrpc.ClientsGrpcBase
             Username = client.Username,
             IsActive = client.IsActive,
             PasswordHash = client.PasswordHash,
+            Role = client.Role,
         };
     }
 
