@@ -69,7 +69,8 @@ El Clients Service implementa:
   "Address": "string",
   "PhoneNumber": "string",
   "IsActive": "bool",
-  "CreatedAt": "DateTime"
+  "CreatedAt": "DateTime",
+  "Role": "string"
 }
 ```
 
