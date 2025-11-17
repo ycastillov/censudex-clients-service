@@ -54,5 +54,13 @@ namespace ClientsService.Src.Models
         /// Fecha de registro del cliente.
         /// </summary>
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        /// <summary>
+        /// Rol del cliente en el sistema.
+        /// </summary> <summary>
+        ///
+        /// </summary>
+        /// <value></value>
+        public string Role { get; set; } = "CLIENT";
     }
 }

@@ -19,7 +19,8 @@ namespace ClientsService.Src.Profiles
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.PasswordHash, opt => opt.MapFrom(src => src.Password))
-                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => true));
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => true))
+                .ForMember(dest => dest.Role, opt => opt.MapFrom(src => "CLIENT"));
 
             //
             // Modelo → DTO general

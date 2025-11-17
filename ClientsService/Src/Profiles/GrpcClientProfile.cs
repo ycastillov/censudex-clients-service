@@ -50,7 +50,8 @@ namespace ClientsService.Src.Profiles
                     opt => opt.MapFrom(src => src.BirthDate.ToString())
                 )
                 .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber))
-                .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address));
+                .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))
+                .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role));
         }
     }
 }

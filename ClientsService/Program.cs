@@ -42,7 +42,6 @@ builder.Services.AddGrpcReflection();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddFluentValidationAutoValidation();
 
-// builder.Services.AddFluentValidationClientsideAdapters();
 builder.Services.AddValidatorsFromAssemblyContaining<ClientCreateValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<ClientUpdateValidator>();
 

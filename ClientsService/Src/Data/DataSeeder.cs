@@ -27,10 +27,27 @@ namespace ClientsService.Src.Data
 
             context.Database.MigrateAsync();
 
+            context.Clients.Add(
+                new Client
+                {
+                    Id = Guid.NewGuid(),
+                    FullName = "Administrador del sistema",
+                    Email = "admin@censudex.com",
+                    Username = "admin",
+                    BirthDate = DateOnly.FromDateTime(DateTime.UtcNow.AddYears(-30)),
+                    Address = "Calle Falsa 123, Ciudad, País",
+                    PhoneNumber = "+56900000000",
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin123!"),
+                    Role = "ADMIN",
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow,
+                }
+            );
+
             var faker = new Faker("es");
 
             var clients = new List<Client>();
-            for (int i = 0; i < 20; i++)
+            for (int i = 0; i < 9; i++)
             {
                 var client = new Client
                 {
@@ -47,6 +64,7 @@ namespace ClientsService.Src.Data
                         faker.Internet.Password(10, false, "", "Aa1!")
                     ),
                     IsActive = true,
+                    Role = "CLIENT",
                     CreatedAt = DateTime.UtcNow,
                 };
                 clients.Add(client);

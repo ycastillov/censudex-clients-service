@@ -46,5 +46,10 @@ namespace ClientsService.Src.DTOs
         /// Fecha de registro del cliente.
         /// </summary>
         public required DateTime CreatedAt { get; set; }
+
+        /// <summary>
+        /// Rol del cliente.
+        /// </summary>
+        public required string Role { get; set; }
     }
 }
