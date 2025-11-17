@@ -80,13 +80,14 @@ El Clients Service implementa:
 
 Puerto por defecto: **[https://localhost:7181](https://localhost:7181)**
 
-| Método             | Descripción                     |
-| ------------------ | ------------------------------- |
-| `CreateClient`     | Crear un nuevo cliente          |
-| `GetClientById`    | Obtener cliente mediante UUID   |
-| `GetAllClients`    | Obtener lista de clientes       |
-| `UpdateClient`     | Actualizar un cliente existente |
-| `DeactivateClient` | Desactivar un cliente           |
+| Método                  | Descripción                            |
+| ------------------      | -------------------------------        |
+| `CreateClient`          | Crear un nuevo cliente                 |
+| `GetClientById`         | Obtener cliente mediante UUID          |
+| `GetAllClients`         | Obtener lista de clientes              |
+| `UpdateClient`          | Actualizar un cliente existente        |
+| `DeactivateClient`      | Desactivar un cliente                  |
+| `GetClientByIdentifier` | Obtener cliente según username o email |
 
 ---
 
