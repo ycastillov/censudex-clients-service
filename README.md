@@ -241,6 +241,16 @@ https://localhost:7181
 
 ---
 
+### ✔ GetClientByIdentifier
+
+```json
+{
+    "identifier": "juanperez3"
+}
+```
+
+---
+
 ## 📦 Estructura del Proyecto
 
 ```
